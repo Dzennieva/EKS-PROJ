@@ -14,7 +14,7 @@ COPY . .
 # install node modules and build assets
 RUN yarn install && yarn run build
 
-# Nginx based on debian bullsey for serving content
+# Nginx based on debian bullseye for serving content
 FROM nginx:bullseye
 
 # Set working directory inside the container 
