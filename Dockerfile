@@ -12,7 +12,7 @@ WORKDIR /app
 COPY . . 
 
 # install node modules and build assets
-RUN  npm install && npm run build
+RUN yarn install && yarn run build
 
 # Nginx based on debian bullsey for serving content
 FROM nginx:bullseye
