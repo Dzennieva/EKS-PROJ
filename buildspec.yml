@@ -1,0 +1,39 @@
+version: 0.2
+
+env:
+  parameter-store:
+    DOCKER_REGISTRY_URL: /myapp/docker-registry/url
+    DOCKER_CRED_USR: /myapp/dockercred/username
+    DOCKER_CRED_PWD: /myapp/dockercred/password
+  variables:
+    IMAGE_NAME: "netflix-clone"
+
+phases:
+  install:
+    runtime-versions:
+      nodejs: 18
+    commands:
+      - npm install
+
+  pre_build:
+    commands:
+      - echo Entered the pre_build phase...
+      - echo "$DOCKER_CRED_PWD" | docker login -u "$DOCKER_CRED_USR" --password-stdin "$DOCKER_REGISTRY_URL"
+      - FULL_IMAGE_URI="$DOCKER_REGISTRY_URL/$DOCKER_CRED_USR/$IMAGE_NAME"
+      - IMAGE_TAG="v1.0.$CODEBUILD_BUILD_NUMBER"
+      - echo "FULL_IMAGE_URI=$FULL_IMAGE_URI:$IMAGE_TAG"
+
+  build:
+    commands:
+      - echo Entered the build phase...
+      - echo Build started on `date`
+      - docker build -t "$FULL_IMAGE_URI:$IMAGE_TAG" .
+
+  post_build:
+    commands:
+      - echo Entered the post_build phase..
+      - echo "$FULL_IMAGE_URI:$IMAGE_TAG"
+      - docker images
+      - docker push "$FULL_IMAGE_URI:$IMAGE_TAG"
+      - echo Build completed on `date`
+      
